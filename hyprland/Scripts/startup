@@ -1,0 +1,61 @@
+#!/bin/bash
+
+#wallpaper fetcher and wallpaper rotator
+#type "var" in a terminal to change settings - example
+#variety &
+env = XDG_CURRENT_DESKTOP,Hyprland
+env = XDG_SESSION_TYPE,wayland
+env = XDG_SESSION_DESKTOP,Hyprland
+
+# QT
+env = QT_AUTO_SCREEN_SCALE_FACTOR,1
+env = QT_QPA_PLATFORM=wayland;xcb    # Not yet working for onlyoffice-editor
+env = QT_WAYLAND_DISABLE_WINDOWDECORATION,1
+env = QT_QPA_PLATFORMTHEME,qt6ct
+
+# Toolkit
+env = SDL_VIDEODRIVER,wayland
+env = _JAVA_AWT_WM_NONEREPARENTING,1
+env = CLUTTER_BACKEND,wayland
+env = GDK_BACKEND,wayland,x11
+exec-once = systemctl --user import-environment XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
+exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+
+scriptsdir=$HOME/dotfiles/hyprland/Scripts
+
+# kill already running process
+_ps=(waybar mako)
+for _prs in "${_ps[@]}"; do
+	if [[ $(pidof ${_prs}) ]]; then
+		killall -9 ${_prs}
+	fi
+done
+
+# polkit agent
+if [[ ! 'pidof polkit-gnome-authentication-agent-1' ]];then
+	/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+fi
+
+# apply themes
+${scriptsdir}/gtkthemes &
+
+# lauch notification daemon (mako)
+${scriptsdir}/notifications &
+
+# lauch statusbar (waybar)
+${scriptsdir}/statusbar &
+
+# xauthority
+${scriptsdir}/xauthority &
+
+#dex $home/.config/autostart/arcolinux-welcome-app.desktop &
+
+#insync start &
+#dropbox &
+#telegram-desktop &
+#discord &
+nm-applet --indicator
+
+# /usr/bin/emacs -f server-start
+/usr/bin/emacs --deamon &
+#/bin/bash -c "sleep 2 && /usr/bin/variety --profile /home/cyborg/.config/variety/"

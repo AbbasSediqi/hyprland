@@ -1,0 +1,11 @@
+#!/bin/bash
+
+CONFIG="$HOME/dotfiles/hyprland//wofifull/config"
+STYLE="$HOME/dotfiles/hyprland/wofifull/style.css"
+COLORS="$HOME/dotfiles/hyprland/wofifull/colors"
+
+if [[ ! $(pidof wofi) ]]; then
+	wofi --show drun --prompt 'Search...' --conf ${CONFIG} --style ${STYLE} --color ${COLORS}
+else
+	pkill wofi
+fi
